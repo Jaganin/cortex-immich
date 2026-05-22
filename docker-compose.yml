@@ -14,8 +14,7 @@ services:
     container_name: immich_server
     image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
     volumes:
-      - /opt/cortex-immich/media:/usr/src/app/upload
-      - /mnt/synology/Photo:/synology/Photo:ro
+      - /mnt/synology/Photo:/usr/src/app/upload
       - /etc/localtime:/etc/localtime:ro
     env_file:
       - .env
