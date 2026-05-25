@@ -14,8 +14,13 @@ services:
     container_name: immich_server
     image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
     volumes:
-      - /mnt/synology/Photo:/usr/src/app/upload
-      - /mnt/synology/Photo:/synology/Photo:ro
+      - /mnt/synology/Immich/library-meta:/usr/src/app/upload/library
+      - /mnt/synology/Photo:/usr/src/app/upload/library/admin
+      - /mnt/synology/Photo/upload:/usr/src/app/upload/upload
+      - /mnt/synology/Immich/thumbs:/usr/src/app/upload/thumbs
+      - /mnt/synology/Immich/backups:/usr/src/app/upload/backups
+      - /mnt/synology/Immich/profile:/usr/src/app/upload/profile
+      - /mnt/synology/Immich/encoded-video:/usr/src/app/upload/encoded-video
       - /etc/localtime:/etc/localtime:ro
     env_file:
       - .env
@@ -61,6 +66,24 @@ services:
     restart: always
     healthcheck:
       disable: false
+
+  claw2immich:
+    container_name: immich_mcp
+    image: ghcr.io/joeru/claw2immich:latest
+    environment:
+      IMMICH_BASE_URL: http://immich-server:2283
+      IMMICH_API_KEY: ${IMMICH_MCP_API_KEY}
+      IMMICH_PROFILE: read_write
+      MCP_TRANSPORT: streamable-http
+      MCP_HOST: 0.0.0.0
+      MCP_PORT: 8765
+    volumes:
+      - /mnt/synology/Photo/upload:/mnt/inbox:ro
+    ports:
+      - '8765:8765'
+    depends_on:
+      - immich-server
+    restart: always
 
 volumes:
   model-cache:
